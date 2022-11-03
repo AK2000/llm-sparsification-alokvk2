@@ -10,13 +10,16 @@ def prune_model(model, amount=0.2):
         else:
             return f
     layers = flatten(model)
-    params_to_prune = [(m, p[0]) for m in layers for p in m.named_parameters()]
+    params_to_prune = [(m, p[0]) for m in layers for p in m.named_parameters() if p[0][-6:] == "weight"]
     
     prune.global_unstructured(
         params_to_prune,
         pruning_method=prune.L1Unstructured,
         amount=amount,
     )
+
+    for (m, name) in params_to_prune:
+        prune.remove(m, name)
 
     return model
 
@@ -25,17 +28,17 @@ model_dir = "models/"
 for sparsity in [.1, .5, .9, .95, .99]:
     model = GPT2Model.from_pretrained("gpt2")
     model = prune_model(model, amount=sparsity)
-    name = f"gpt2-{sparsity}.pt"
+    name = f"gpt2-{sparsity}"
     model.save_pretrained(model_dir + name)
 
-for sparsity in [.1, .5, .9, .95, .99]:
-    model = T5Model.from_pretrained("t5-large")
-    model = prune_model(model, amount=sparsity)
-    name = f"t5-{sparsity}.pt"
-    model.save_pretrained(model_dir + name)
+# for sparsity in [.1, .5, .9, .95, .99]:
+#     model = T5Model.from_pretrained("t5-large")
+#     model = prune_model(model, amount=sparsity)
+#     name = f"t5-{sparsity}.pt"
+#     model.save_pretrained(model_dir + name)
 
-for sparsity in [.1, .5, .9, .95, .99]:
-    model = DebertaV2Model.from_pretrained("microsoft/deberta-v2-xxlarge")
-    model = prune_model(model, amount=sparsity)
-    name = f"deberta-{sparsity}.pt"
-    model.save_pretrained(model_dir + name)
+# for sparsity in [.1, .5, .9, .95, .99]:
+#     model = DebertaV2Model.from_pretrained("microsoft/deberta-v2-xxlarge")
+#     model = prune_model(model, amount=sparsity)
+#     name = f"deberta-{sparsity}.pt"
+#     model.save_pretrained(model_dir + name)
