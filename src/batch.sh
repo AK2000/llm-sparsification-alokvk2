@@ -1,5 +1,3 @@
-!/bin/bash
-
 module load nvidia
 module load conda
 
