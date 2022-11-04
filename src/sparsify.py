@@ -1,6 +1,6 @@
 import torch
 import torch.nn.utils.prune as prune
-from transformers import GPT2Model, RobertaModel, PegasusModel
+from transformers import GPT2Tokenizer, GPT2Model, RobertaModel, PegasusModel
 
 def prune_model(model, amount=0.2):
     def flatten(m):
@@ -27,22 +27,36 @@ def prune_model(model, amount=0.2):
 
     return model
 
-
 model_dir = "models/"
-#for sparsity in [.1, .5, .9, .95, .99]:
-#    model = GPT2Model.from_pretrained("gpt2")
-#    model = prune_model(model, amount=sparsity)
-#    name = f"gpt2-{sparsity}"
-#    model.save_pretrained(model_dir + name)
 
-#for sparsity in [.1, .5, .9, .95, .99]:
-#     model = RobertaModel.from_pretrained("roberta-large")
-#     model = prune_model(model, amount=sparsity)
-#     name = f"roberta-{sparsity}"
-#     model.save_pretrained(model_dir + name)
+# Add padding token to tokenizer for GPT2 for seq classification task
+tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+tokenizer.pad_token = tokenizer.eos_token
+tokenizer.save_pretrained(model_dir + "gpt2_tokenizer")
 
 for sparsity in [.1, .5, .9, .95, .99]:
-     model = PegasusModel.from_pretrained("google/pegasus-large")
-     model = prune_model(model, amount=sparsity)
-     name = f"deberta-{sparsity}.pt"
-     model.save_pretrained(model_dir + name)
+   model = GPT2Model.from_pretrained("gpt2")
+   model = prune_model(model, amount=sparsity)
+   model.config.pad_token_id = model.config.eos_token_id
+   name = f"gpt2-{sparsity}"
+   model.save_pretrained(model_dir + name)
+
+# Save a gpt2 model with padding token for seq classification task
+model = GPT2Model.from_pretrained("gpt2")
+model.config.pad_token_id = model.config.eos_token_id
+name = f"gpt2-{0.0}"
+model.save_pretrained(model_dir + name)
+
+for sparsity in [.1, .5, .9, .95, .99]:
+    model = RobertaModel.from_pretrained("roberta-large")
+    model = prune_model(model, amount=sparsity)
+    name = f"roberta-{sparsity}"
+    model.save_pretrained(model_dir + name)
+
+for sparsity in [.1, .5, .9, .95, .99]:
+    model = PegasusModel.from_pretrained("google/pegasus-large")
+    model = prune_model(model, amount=sparsity)
+    name = f"deberta-{sparsity}.pt"
+    model.save_pretrained(model_dir + name)
+
+
