@@ -55,7 +55,9 @@ I also evaluated the models on a the MRPC task of the GLUE (General Language Und
 
 ![Image](results/figs/throughput-results.png) 
 
-Pytorch/transformers currently does not support saving sparse models, nor does it offer software support for automatic sparsity. Also, I was running evaluation on A100 GPUs which do not offer hardware support for sparsity. Thus, both the size and the runtime of the sparse models was unaffected. This will be discussed more in the challenges section. The graph shows the throughput in samples per second for the language modelling task across all sparsities across all three models. We can observe that there is no noticable difference in performance based on the sparsity of the model, which lines up with the lack of hardware support for sparsity. 
+Pytorch/transformers currently does not support saving sparse models, nor does it offer software support for automatic sparsity. Also, I was running evaluation on A100 GPUs which do not offer hardware support for sparsity. Thus, both the size and the runtime of the sparse models was unaffected. This will be discussed more in the challenges section. The graph shows the throughput in samples per second for the language modelling task across all sparsities across all three models. We can observe that there is no noticable difference in performance based on the sparsity of the model, which lines up with the lack of hardware support for sparsity. To address the lack of compression in the size of the model, I tested the affect of using gzip to compress the models. We can see that the sparsity enables the model to be stored more efficiently, although the compressed models can not be used as is.
+
+![Image](results/figs/size_vs_sparsity.png) 
 
 ## Challenges of Sparsification
 
